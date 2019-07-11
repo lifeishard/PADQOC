@@ -6,10 +6,10 @@ Parallel Automatic Differentiation Quantum Optimal Control (PADQOC) is a tool de
 Commonly used to design control pulses for a desired unitary when given system and control dynamics expressed in hamiltonian formalism.
 
 ### Features ###
-*GPU processing
-*Arbitrary parameterization basis
-*Distributions of Drift and Control Hamiltonians
-*Various optimizers
+* GPU processing
+* Arbitrary parameterization basis
+* Distributions of Drift and Control Hamiltonians
+* Various optimizers
 
 ### Alternative tools and projects ###
 * [Qutip](http://qutip.org/docs/latest/guide/guide-control.html) Quite a big library
