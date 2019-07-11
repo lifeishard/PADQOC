@@ -1,12 +1,12 @@
 # PADQOC
 
-Parallel Automatic Differentiation Quantum Optimal Control (PADQOC) is a tool designed to to be fast and extensible, useful for general quantum control problems. It is written in Python and built on top of Tensorflow 2.
+Parallel Automatic Differentiation Quantum Optimal Control (PADQOC) is a tool designed to high performance and extensible, useful for general quantum controls. Written in Python and built on top of Tensorflow 2.
 
 ## Background
 Commonly used to design control pulses for a desired unitary when given system and control dynamics expressed in hamiltonian formalism.
 
 ### Features ###
-* GPU processing
+* GPU computing
 * Arbitrary parameterization basis
 * Distributions of Drift and Control Hamiltonians
 * Various optimizers
@@ -21,9 +21,9 @@ Commonly used to design control pulses for a desired unitary when given system a
 ## Support
 Email michael.y.chen@uwaterloo.ca if you have questions or concerns.
 
-
 ## Built With
 * [Tensorflow 2.0](https://www.tensorflow.org/beta)
+* [Numpy](https://www.numpy.org/)
 
 ## License
 [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
