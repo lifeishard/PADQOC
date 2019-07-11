@@ -30,15 +30,15 @@ class PADQOC(object):
     control_basis:            Currently a 3D tensor [control hamiltonian, basis function ,time].
 	                          Default:[[[1]]] - time parameterization
 	control_distrib:          1D tensor representing the distribution of control hamiltonian e.g. [0.10,0.9] -> Fidelity will be weighted based on 10% control hamiltonian type A, 90% control hamiltonian type B
-	                          Default: [1] - singular control hamiltonian 
+	                          Default: [1] - single control hamiltonian 
 	control_distrib_values:   Currently a 1D tensor representing multiplicative factors to generate the control hamiltonian distributions 
 	                          e.g. [0.98,1] -> control hamiltonian distribution A is 0.98 * control hamiltonian, control hamiltonian distribution B is 1.0 * control hamiltonian
-							  Default: [1] - singular control hamiltonian 
- 	drift_distrib:            1D tensor representing the distribution of control hamiltonian e.g. [0.10,0.9] -> Fidelity will be weighted based on 10% control hamiltonian type A, 90% control hamiltonian type B
-	                          Default: [1] - singular control hamiltonian 
+							  Default: [1] - single control hamiltonian 
+ 	drift_distrib:            1D tensor representing the distribution of control hamiltonian e.g. [0.10,0.9] -> Fidelity will be weighted based on 10% drift hamiltonian type A, 90% drift hamiltonian type B
+	                          Default: [1] - single control hamiltonian 
 	drift_distrib_values:     Currently a 1D tensor representing multiplicative factors to generate the drift hamiltonian distributions 
-	                          e.g. [0.98,1] -> control hamiltonian distribution A is 0.98 * drift hamiltonian, drift hamiltonian distribution B is 1.0 * drift hamiltonian   
-							  Default: [1] - singular control hamiltonian 
+	                          e.g. [0.98,1] -> drift hamiltonian distribution A is 0.98 * drift hamiltonian, drift hamiltonian distribution B is 1.0 * drift hamiltonian   
+							  Default: [1] - single drift hamiltonian 
     """
     
     tf.keras.backend.clear_session()
@@ -149,7 +149,16 @@ class PADQOC(object):
   
   @tf.function
   def time_parameterization(self):
-        return tf.reshape(self.optimization_params,[self.n_timeslots,self.n_controls])    
+      return tf.reshape(self.optimization_params,[self.n_timeslots,self.n_controls])    
+  
+  @tf.function
+  def controls(self):
+     internal_controls = self.parameterization_function()
+     ordered_controls = tf.zeros([self.n_controls,self.n_timeslots])
+     for time_index in range(self.n_timeslots):
+         for control_index in range(self.n_controls):
+             ordered_controls[control_index][self.pulse_order[time_index]] = internal_controls[time_index][control_index]
+     return ordered_controls
 
   @tf.function
   def u_mul_1(self,ul0):
@@ -345,4 +354,4 @@ class PADQOC(object):
 
   @tf.function
   def __call__(self):
-    return self.step()
+    return self.controls()
