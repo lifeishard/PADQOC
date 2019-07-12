@@ -50,7 +50,7 @@ class PADQOC(object):
     self.ham_controls = tf.constant(ham_controls)
 
     self.n_timeslots = tf.constant(n_timeslots)
-    self.u_targ = tf.constant(u_targ)
+    self.u_targ = tf.constant(u_targ,tf.complex128)
     self.piece_length = tf.constant(piece_length,tf.float64)
     self.drift_distrib = tf.constant(drift_distrib,tf.float64)
     self.control_distrib = tf.constant(control_distrib,tf.float64)
@@ -134,11 +134,17 @@ class PADQOC(object):
     self.control_basis = tf.constant(reordered_control_basis)
    
 
-    self.pulse_order = tf.constant(inv_order)
+    self.pulse_order = tf.constant(inv_order,tf.int32)
 
     self.n_control_basis = self.control_basis.shape[2]   
     
-    
+  def controls(self):
+     internal_controls = self.parameterization_function()
+     ordered_controls = np.zeros((self.n_controls,self.n_timeslots))
+     for time_index in range(self.n_timeslots):
+         for control_index in range(self.n_controls):
+             ordered_controls[control_index][self.pulse_order[time_index]] = internal_controls[time_index][control_index]
+     return ordered_controls  
 
   @tf.function 
   def basis_parameterization(self):
@@ -150,15 +156,6 @@ class PADQOC(object):
   @tf.function
   def time_parameterization(self):
       return tf.reshape(self.optimization_params,[self.n_timeslots,self.n_controls])    
-  
-  @tf.function
-  def controls(self):
-     internal_controls = self.parameterization_function()
-     ordered_controls = tf.zeros([self.n_controls,self.n_timeslots])
-     for time_index in range(self.n_timeslots):
-         for control_index in range(self.n_controls):
-             ordered_controls[control_index][self.pulse_order[time_index]] = internal_controls[time_index][control_index]
-     return ordered_controls
 
   @tf.function
   def u_mul_1(self,ul0):
