@@ -13,10 +13,10 @@
    limitations under the License.
  """  
 
-
 import numpy as np
 import tensorflow as tf
 from PADQOC import PADQOC
+import matplotlib.pyplot as plt
 tf.enable_eager_execution()
 
 #Pauli Matrices
@@ -24,7 +24,6 @@ px = np.array([[0,1+0j],[1+0j,0]])
 py = np.array([[0,-1j],[1j,0]])
 pz = np.array([[1+0j,0],[0,-1+0j]])
 pi = np.array([[1+0j,0],[0,1+0j]])
-
 
 #Pauli Matrices Generator
 def pcat(s):
@@ -43,6 +42,7 @@ def pcat(s):
 #2 qubits
 q = 2
 
+#Hamiltonian scaling factor depends on pauli matrices convention and # of qubits
 ham_factor =  2**(q/2)*np.pi/2
         
 #resonance offset frequency in hertz
@@ -58,62 +58,60 @@ drift_hamiltonian = ham_factor*((-2*(h_offset)*pcat("zi"))+(-2*(c_offset)*pcat("
 #10 microseconds
 p90deg = 1e-5
 
+#In NMR control power level is often expressed in Hz
 power_level = 2*np.pi/(p90deg*4)
 
+#independant X and Y control on second qubit
 control_hamiltonian = np.array([power_level/2*2**(q/2) * (pcat("ix")) , power_level/2*2**(q/2) * (pcat("iy"))])
 
 #10 microseconds
 discretization_time = 1e-5
 
-
 #CNOT
 target_unitary = np.array([[1,0,0,0],
-                   [0,1,0,0],
-                   [0,0,0,1],
-                   [0,0,1,0]])
- 
-
-    
-    
-for time_slot_index in range(70,100):
+                           [0,1,0,0],
+                           [0,0,0,1],
+                           [0,0,1,0]])
+   
+#Hyperparameter sweep control pulse length from 8 ms to 12 ms in increments of 1ms
+for time_slot_index in range(80,120,10):
 
     n_time_slots = time_slot_index*10
-
-    for seed_index in range(1):
+    
+    #Try each Hyperparameter twice
+    for seed_index in range(2):
         
         initial_values = np.random.uniform(-1,1,n_time_slots*control_hamiltonian.shape[0])
-        print(initial_values.shape)
-        #initial_values = np.ones(n_time_slots*control_hamiltonian.shape[0])
+        
         quantum_control  = PADQOC(target_unitary,drift_hamiltonian,control_hamiltonian,discretization_time,n_time_slots,initial_values)
+        
+        #choose Adam optimizer, can use other ML optimizers in keras or can be modified to use other methods
+        #like 2nd order gradient based optimizers in Tensorflow Probability or Scipy
         optimizer = tf.keras.optimizers.Adam()
  
-        steps = range(3000)
-        b = 1
-        infidelity = 1
-        
-        #stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        #logdir = 'logs/func/%s' % stamp
-        #writer = tf.compat.v2.summary.create_file_writer(logdir)
-        
-        for step in steps:  
-          #tf.compat.v2.summary.trace_on(graph=True,profiler=True)
+        infidelity = 1        
+        for step in range(1500):  
           
             with tf.GradientTape() as tape:
      
-                current_loss = quantum_control.step() #+ normloss(mymod.optimization_params)
+                current_loss = quantum_control.step()
                 infidelity = current_loss.numpy()
-                #with tf.device('/cpu:0'):  
+
                 gradients = tape.gradient(current_loss,[quantum_control.optimization_params])
-                #gradients = tf.gradients(curloss,[mymod.optimization_params],aggregation_method=tf.AggregationMethod.EXPERIMENTAL_ACCUMULATE_N)
+
                 optimizer.apply_gradients(zip(gradients, [quantum_control.optimization_params]))
 
-          
-          
-                """with writer.as_default():
-                  tf.compat.v2.summary.trace_export(
-                  name="my_func_trace",
-                  step=0,
-                  profiler_outdir=logdir)"""
-        print("Pulse length: "+n_time_slots* discretization_time + " has fidelity: "+1-infidelity)
-
+        print("Pulse length: "+'{:.3}'.format(n_time_slots* discretization_time)+" s"+ " has fidelity: "+str(1-infidelity))
+        final_controls = quantum_control.controls()
+        fig, ax = plt.subplots(1, figsize=(24, 13.5))
+        plt.plot(final_controls[0],label="1st control")
+        plt.plot(final_controls[1],label="2nd control")
+        plt.title("CNOT Controls "+'{:.3}'.format(n_time_slots* discretization_time)+" s")
+        ax.set(xlabel='Time',ylabel='Amplitude')
+        ax.legend()
+        
+        #Save the pulse controls to figure
+        plt.savefig("Pulse_length_"+str(n_time_slots* discretization_time)+".svg")
+        #plt.show()
+        plt.close()
                       
