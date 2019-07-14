@@ -11,16 +11,20 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
- """
-"""
-Library of builtin parameterization basis for PADQOC
-"""
+ """  
 import numpy as np
 from scipy.signal import windows
+
+"""
+library of control basis generators returns 2D tensors
+Dimension 1 is the basis, Dimension 0 is time
+"""
+
 
  
 def sinusoidal_basis_gen(n_time_slots,discretization_time,bandwidth):
     """Full bandwidth in Hz, # of cycles in a second
+    Sinusoids basis which start and stop at 0
     """
     epsilon = 1e-8
     n_sinusoidal_basis = int(2*discretization_time*n_time_slots*bandwidth+epsilon)
@@ -35,6 +39,8 @@ def sinusoidal_basis_gen(n_time_slots,discretization_time,bandwidth):
 
 def slepian_basis_gen(n_time_slots,discretization_time,bandwidth,min_digitization):
     """Full bandwidth in Hz, # of cycles in a second
+    Slepian sequence also known as discrete prolate spheroidal sequence, or DPSS
+    Uses scipy.signal.windows.dpss
     """
     
     NW = bandwidth*discretization_time *n_time_slots
