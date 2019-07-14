@@ -10,9 +10,16 @@ Designing control pulses to generate desired unitary evolution subjugated to exp
 * Distributions of Drift and Control Hamiltonians
 * Various optimizers
 
+### Usage ###
+* Easiest:relaxed: run it in [Google Colab](https://colab.research.google.com/) 
+* Average:smirk: install [Tensorflow 2 binaries](https://www.tensorflow.org/install) and run locally
+* Difficult:worried: install Cuda 10.0 and other [GPU support](https://www.tensorflow.org/install/gpu) with Tensorflow 2 binaries 
+* DifficultX2:persevere: install Cuda 10.0 and other GPU support and build Tensorflow 2 from [source](https://www.tensorflow.org/install/source)
+
+
 ### Alternative tools and projects ###
-* [Qutip](http://qutip.org/docs/latest/guide/guide-control.html) Quite a big library
-* [Schuster's Lab Quantum Optimal Control](https://github.com/SchusterLab/quantum-optimal-control) A bit outdated
+* [Qutip](http://qutip.org/docs/latest/guide/guide-control.html) Big feature-rich quantum python library
+* [Schuster's Lab Quantum Optimal Control](https://github.com/SchusterLab/quantum-optimal-control) Earlier python implementation of GPU assisted quantum control
 
 ## Authors
 * **Michael Y. Chen** - *Initial work*
