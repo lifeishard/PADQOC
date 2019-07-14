@@ -56,7 +56,7 @@ class PADQOC(object):
     """
     
     tf.keras.backend.clear_session()
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
       
     self.optimization_params   = tf.Variable(initial_values)
  
