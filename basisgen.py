@@ -16,8 +16,7 @@ import numpy as np
 from scipy.signal import windows
 
 """
-library of control basis generators returns 2D tensors
-Dimension 1 is the basis, Dimension 0 is time
+library of control basis generators returns 2D tensors [basis,time]
 """
 
 
