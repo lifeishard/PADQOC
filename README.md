@@ -11,10 +11,31 @@ Designing control pulses to generate desired unitary evolution subjugated to exp
 * Various optimizers
 
 ### Usage ###
-* Easiest:relaxed: run it in [Google Colab](https://colab.research.google.com/) 
+* Easiest:relaxed: run it in [Google Colab](https://colab.research.google.com/) which also support GPU and TPU
 * Average:smirk: install [Tensorflow 2 binaries](https://www.tensorflow.org/install) and run locally
 * Difficult:worried: install Cuda 10.0 and other [GPU support](https://www.tensorflow.org/install/gpu) with Tensorflow 2 binaries 
 * DifficultX2:persevere: install Cuda 10.0 and other GPU support and build Tensorflow 2 from [source](https://www.tensorflow.org/install/source)
+
+### First Demo ###
+
+Running the time basis cnot example in Google colab
+```
+!git clone -l -s git://github.com/lifeishard/PADQOC.git cloned-repo
+%cd cloned-repo
+!ls
+```
+```
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+# Install TensorFlow
+!pip install -q tensorflow==2.0.0-beta1
+
+import tensorflow as tf
+```
+```
+%run time_basis_cnot.py
+```
+
 
 
 ### Alternative tools and projects ###
