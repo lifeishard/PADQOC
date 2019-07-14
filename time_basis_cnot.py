@@ -20,9 +20,9 @@ A more feature-rich demo is found in sinusoidal_basis_swap
 """
 import numpy as np
 import tensorflow as tf
-from PADQOC import PADQOC
+from padqoc import PADQOC
 import matplotlib.pyplot as plt
-tf.enable_eager_execution()
+tf.compat.v1.enable_eager_execution()
 
 #Pauli Matrices
 px = np.array([[0,1+0j],[1+0j,0]])
