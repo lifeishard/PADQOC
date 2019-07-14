@@ -12,12 +12,22 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  """  
-   
+"""
+Main class for Parallel Automatic Differentiation Quantum Optimal Control (PADQOC)
+
+Usage:
+initialize PADQOC object
+call step() to compute loss
+Feed in the automatically calculated gradient into optimizer and repeat
+
+Get results from controls() and unitaries()
+"""  
 import tensorflow as tf
 import numpy as np
 
 class PADQOC(object):
-  def __init__(self,u_targ,ham_drift,ham_controls,piece_length,n_timeslots,initial_values,control_basis=np.array([[[1]]]),control_distrib=np.array([1]),control_distrib_values=np.array([1]),drift_distrib=np.array([1]),drift_distrib_values=np.array([1])):
+  def __init__(self,u_targ,ham_drift,ham_controls,piece_length,n_timeslots,initial_values,control_basis=np.array([[[1]]]),
+               control_distrib=np.array([1]),control_distrib_values=np.array([1]),drift_distrib=np.array([1]),drift_distrib_values=np.array([1])):
     """
     u_targ:                   Target unitary
     ham_drift:                Drift Hamiltonian (currently a 2D tensor)
@@ -29,15 +39,19 @@ class PADQOC(object):
                                    Time Basis               initial values reshape -> [self.n_timeslots,self.n_controls]
     control_basis:            Currently a 3D tensor [control hamiltonian, basis function ,time].
 	                          Default:[[[1]]] - time parameterization
-	control_distrib:          1D tensor representing the distribution of control hamiltonian e.g. [0.10,0.9] -> Fidelity will be weighted based on 10% control hamiltonian type A, 90% control hamiltonian type B
+	control_distrib:          1D tensor representing the distribution of control hamiltonian 
+                              e.g. [0.10,0.9] -> Fidelity will be weighted based on 10% control hamiltonian type A, 90% control hamiltonian type B
 	                          Default: [1] - single control hamiltonian 
 	control_distrib_values:   Currently a 1D tensor representing multiplicative factors to generate the control hamiltonian distributions 
-	                          e.g. [0.98,1] -> control hamiltonian distribution A is 0.98 * control hamiltonian, control hamiltonian distribution B is 1.0 * control hamiltonian
+	                          e.g. [0.98,1] -> control hamiltonian distribution A is 0.98 * control hamiltonian, 
+                              control hamiltonian distribution B is 1.0 * control hamiltonian
 							  Default: [1] - single control hamiltonian 
- 	drift_distrib:            1D tensor representing the distribution of control hamiltonian e.g. [0.10,0.9] -> Fidelity will be weighted based on 10% drift hamiltonian type A, 90% drift hamiltonian type B
+ 	drift_distrib:            1D tensor representing the distribution of control hamiltonian 
+                              e.g. [0.10,0.9] -> Fidelity will be weighted based on 10% drift hamiltonian type A, 90% drift hamiltonian type B
 	                          Default: [1] - single control hamiltonian 
 	drift_distrib_values:     Currently a 1D tensor representing multiplicative factors to generate the drift hamiltonian distributions 
-	                          e.g. [0.98,1] -> drift hamiltonian distribution A is 0.98 * drift hamiltonian, drift hamiltonian distribution B is 1.0 * drift hamiltonian   
+	                          e.g. [0.98,1] -> drift hamiltonian distribution A is 0.98 * drift hamiltonian, 
+                              drift hamiltonian distribution B is 1.0 * drift hamiltonian   
 							  Default: [1] - single drift hamiltonian 
     """
     
@@ -139,12 +153,26 @@ class PADQOC(object):
     self.n_control_basis = self.control_basis.shape[2]   
     
   def controls(self):
+     """returns the optimized controls in 2D tensor [controls,time]
+     """
      internal_controls = self.parameterization_function()
      ordered_controls = np.zeros((self.n_controls,self.n_timeslots))
      for time_index in range(self.n_timeslots):
          for control_index in range(self.n_controls):
              ordered_controls[control_index][self.pulse_order[time_index]] = internal_controls[time_index][control_index]
      return ordered_controls  
+
+  def unitaries(self):
+      """return the unitary or set of unitaries in a 4D tensor[drift_distribution, control_distribution, unitary row, unitary column]
+      """
+      return self.trotterization(self.parameterization_function()).numpy()
+ 
+  @tf.function
+  def step(self):
+    """
+    Calculates the loss (infidelity) of the control with the parameters
+    """
+    return self.proploss(self.trotterization(self.parameterization_function()))
 
   @tf.function 
   def basis_parameterization(self):
@@ -321,7 +349,6 @@ class PADQOC(object):
 
   @tf.function
   def trotterization(self,time_basis):
-      
       control_params = tf.expand_dims(tf.expand_dims(time_basis,-1),-1)
       
       tz =  tf.multiply(self.ham_control_slots,tf.cast(control_params,tf.complex128))
@@ -345,9 +372,8 @@ class PADQOC(object):
       #return tf.scan(lambda a, b: tf.matmul(b, a), pad_uni_slots)[-1]
       return self.u_mul_function(pad_uni_slots)
 
-  @tf.function
-  def step(self):
-    return self.proploss(self.trotterization(self.parameterization_function()))
+
+
 
   @tf.function
   def __call__(self):
