@@ -12,7 +12,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  """  
+"""
+Basic sample demonstration of trying to find the length of a high fidelity control pulse to implement a CNOT gate on 2 qubit system using a pure time basis.
+The jagged pulse is visualized and saved to file.
+A more feature-rich demo is found in sinusoidal_basis_swap
 
+"""
 import numpy as np
 import tensorflow as tf
 from PADQOC import PADQOC
@@ -89,7 +94,9 @@ for time_slot_index in range(80,120,10):
         #like 2nd order gradient based optimizers in Tensorflow Probability or Scipy
         optimizer = tf.keras.optimizers.Adam()
  
-        infidelity = 1        
+        infidelity = 1
+
+        #optimize for 1500 steps        
         for step in range(1500):  
           
             with tf.GradientTape() as tape:
