@@ -6,9 +6,9 @@ Designing control pulses to generate desired unitary evolution subjugated to exp
 
 ### Features ###
 * GPU computing
-* Arbitrary parameterization basis
+* Arbitrary parameterization basis (builtin Time, Sinusoids, Slepians)
 * Distributions of Drift and Control Hamiltonians
-* Various optimizers
+* Customizable Optimizers e.g. TF and Keras (adam) and Scipy L-BFGS-B
 
 ### Usage ###
 * Easiest:relaxed: run it in [Google Colab](https://colab.research.google.com/) which also support GPU and TPU
