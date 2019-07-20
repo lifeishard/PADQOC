@@ -29,7 +29,6 @@ import pathlib
 from basisgen import sinusoidal_basis_gen
 from padqoc import PADQOC
 
-tf.compat.v1.enable_eager_execution()
 
 #Pauli Matrices
 px = np.array([[0,1+0j],[1+0j,0]])
