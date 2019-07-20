@@ -110,7 +110,7 @@ for unitary_index in range(2):
             #Full bandwidth in Hz, # of cycles in a second
             bandwidth_limit = 2500*bandwidth_index
             
-            for time_slot_index in range(8,80,1):
+            for time_slot_index in range(9,11,1):
 
                 n_time_slots = time_slot_index*100
 
@@ -183,7 +183,7 @@ for unitary_index in range(2):
                     scipy_result = minimize(objective_function_scipy,initial_values,method='L-BFGS-B',jac=True)
                     
                     print(scipy_result)
-                    infidelity = scipy_result.fun
+                    infidelity = scipy_result.fun.numpy()
                     final_controls = quantum_control.controls()
 
                     #convert optimized controls into machine parsable format      
