@@ -16,6 +16,7 @@
 """
  Sample demonstration of hyperparameter tuning of a swap gate on 2 qubits on a 4 qubit system, a more complicated example compared to time_basis_cnot.
  This example uses the sinusoidal basis and varies control power level, control bandwidth, in addition to the control length.
+ It also uses an external optimizer, Scipy's L-BFGS-B, a second order gradient based optimizer with simple constraints for much faster and better convergence on complex pulses.
  It saves the results in graphical format and NMR machine parsable format.
  
  """
@@ -28,7 +29,7 @@ import datetime
 import pathlib
 from basisgen import sinusoidal_basis_gen
 from padqoc import PADQOC
-
+from scipy.optimize import minimize,Bounds
 
 #Pauli Matrices
 px = np.array([[0,1+0j],[1+0j,0]])
@@ -152,23 +153,37 @@ for unitary_index in range(2):
                     initial_values = np.random.uniform(-1,1,normalized_basis.shape[0]*n_control_ham)
                     quantum_control = PADQOC(target_unitary,drift_hamiltonian,control_hamiltonian,discretization_time,n_time_slots,initial_values,padoqc_controls,control_distribution,control_distribution_values)
                     
+		    #Adding Drift Hamiltonian distribution
                     #quantum_control = PADQOC(target_unitary,drift_hamiltonian,control_hamiltonian,discretization_time,n_time_slots,initial_values,padoqc_controls,control_distribution,control_distribution_values,drift_distribution,drift_distribution_values)
                     
-                    #choose Adam optimizer, can use other ML optimizers in keras or can be modified to use other methods
-                    #like 2nd order gradient based optimizers in Tensorflow Probability or Scipy
-                    optimizer = tf.keras.optimizers.Adam()
+
                     
                     infidelity = 1      
                       
-                    for step in range(1000):  
+                    @tf.function
+                    def objective_function(optimization_params):
+                       with tf.GradientTape() as tape:
+                            current_loss = quantum_control.infidelities_external(optimization_params)
+			    grads = tape.gradient(current_loss,quantum_control.optimization_params)
+                       return current_loss, grads
                       
-                        with tf.GradientTape() as tape:
-                 
-                            current_loss = quantum_control.step()
-                            infidelity = current_loss.numpy()             
-                            gradients = tape.gradient(current_loss,[quantum_control.optimization_params])                
-                            optimizer.apply_gradients(zip(gradients, [quantum_control.optimization_params]))
-
+                    def objective_function_scipy(optimization_params):
+		      #wrapper to convert tensors to ararys for scipy optimizers
+                      current_loss, grads = objective_function(optimization_params)
+                      return current_loss, grads.numpy()
+                      
+                    """
+		    #Can add constraints on parameters and modify iteration limit for optimizer
+                    ub = np.ones_like(initial_values)* (1.0/np.sqrt(2.0))
+                    lb = -1* ub
+		    scipyres = minimize(scipyfunwrap,initial_values,method='L-BFGS-B',jac=True,bounds = Bounds(lb,ub),options={'maxiter': 8000})
+		    
+		    
+		    """
+                    scipy_result = minimize(objective_function_scipy,initial_values,method='L-BFGS-B',jac=True)
+                    
+                    print(scipy_result)
+                    infidelity = scipy_result.fun
                     final_controls = quantum_control.controls()
 
                     #convert optimized controls into machine parsable format      
@@ -188,6 +203,9 @@ for unitary_index in range(2):
                     #save hyperparmeter results
                     with open(log_name,'a+') as f:
                         f.write(pulse_name+"     :     "+str(infidelity)+"\n")
+		    #save scipy optimizer convergence stats
+		    with open(log_name+"_scipy",'a+') as f:
+                        f.write(str(scipy_result)+"\n")
                     
                     #save visualization of pulse
                     res_dir = './'+pulse_name+'/'
@@ -238,4 +256,6 @@ for unitary_index in range(2):
                             tp = str(np.format_float_scientific(magnitude[i]*100,unique=False,precision=6,trim='k'))+",  "+str(np.format_float_scientific(angle[i],unique=False,precision=6,trim='k')+"\n")
                             f.write(tp)
                         f.write("##END"+"\n")
+		    #clean up memory
+		    quantum_control = None
 
