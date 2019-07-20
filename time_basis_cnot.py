@@ -13,7 +13,7 @@
    limitations under the License.
  """  
 """
-Basic sample demonstration of trying to find the length of a high fidelity control pulse to implement a CNOT gate on 2 qubit system using a pure time basis.
+Basic sample demonstration of trying to find the length of a high fidelity control pulse to implement a CNOT gate on 2 qubit system using a pure time basis with adam optimizer.
 The jagged pulse is visualized and saved to file.
 A more feature-rich demo is found in sinusoidal_basis_swap
 
@@ -92,7 +92,7 @@ for time_slot_index in range(80,120,10):
         
         #choose Adam optimizer, can use other ML optimizers in keras or can be modified to use other methods
         #like 2nd order gradient based optimizers in Tensorflow Probability or Scipy
-        optimizer = tf.keras.optimizers.Adam()
+        optimizer = tf.keras.optimizers.Adam(decay = 0.0003)
  
         infidelity = 1
 
@@ -101,7 +101,7 @@ for time_slot_index in range(80,120,10):
           
             with tf.GradientTape() as tape:
      
-                current_loss = quantum_control.step()
+                current_loss = quantum_control.infidelities()
                 infidelity = current_loss.numpy()
 
                 gradients = tape.gradient(current_loss,[quantum_control.optimization_params])
@@ -121,4 +121,5 @@ for time_slot_index in range(80,120,10):
         plt.savefig("Pulse_length_"+str(n_time_slots* discretization_time)+".svg")
         #plt.show()
         plt.close()
-                      
+        #Free up Memory
+        quantum_control  = None              
