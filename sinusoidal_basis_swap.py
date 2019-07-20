@@ -163,8 +163,8 @@ for unitary_index in range(2):
                     @tf.function
                     def objective_function(optimization_params):
                        with tf.GradientTape() as tape:
-                            current_loss = quantum_control.infidelities_external(optimization_params)
-			    grads = tape.gradient(current_loss,quantum_control.optimization_params)
+                           current_loss = quantum_control.infidelities_external(optimization_params)
+                           grads = tape.gradient(current_loss,quantum_control.optimization_params)
                        return current_loss, grads
                       
                     def objective_function_scipy(optimization_params):
@@ -203,8 +203,8 @@ for unitary_index in range(2):
                     #save hyperparmeter results
                     with open(log_name,'a+') as f:
                         f.write(pulse_name+"     :     "+str(infidelity)+"\n")
-		    #save scipy optimizer convergence stats
-		    with open(log_name+"_scipy",'a+') as f:
+					#save scipy optimizer convergence stats
+                    with open(log_name+"_scipy",'a+') as f:
                         f.write(str(scipy_result)+"\n")
                     
                     #save visualization of pulse
@@ -256,6 +256,6 @@ for unitary_index in range(2):
                             tp = str(np.format_float_scientific(magnitude[i]*100,unique=False,precision=6,trim='k'))+",  "+str(np.format_float_scientific(angle[i],unique=False,precision=6,trim='k')+"\n")
                             f.write(tp)
                         f.write("##END"+"\n")
-		    #clean up memory
-		    quantum_control = None
+                    #clean up memory
+                    quantum_control = None
 
