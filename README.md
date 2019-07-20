@@ -51,6 +51,7 @@ Email michael.y.chen@uwaterloo.ca if you have questions or concerns.
 ## Built With
 * [Tensorflow 2.0](https://www.tensorflow.org/beta)
 * [Numpy](https://www.numpy.org/)
+* [Scipy](https://www.scipy.org/)
 
 ## License
 [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
