@@ -22,7 +22,6 @@ import numpy as np
 import tensorflow as tf
 from padqoc import PADQOC
 import matplotlib.pyplot as plt
-tf.compat.v1.enable_eager_execution()
 
 #Pauli Matrices
 px = np.array([[0,1+0j],[1+0j,0]])
