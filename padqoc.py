@@ -55,9 +55,10 @@ class PADQOC(object):
 							  Default: [1] - single drift hamiltonian 
     """
     
+    #Reduce Memory Leak
     tf.keras.backend.clear_session()
     tf.compat.v1.reset_default_graph()
-      
+    
     self.optimization_params   = tf.Variable(initial_values)
  
     self.ham_drift = tf.constant(ham_drift) 
@@ -168,10 +169,20 @@ class PADQOC(object):
       return self.trotterization(self.parameterization_function()).numpy()
  
   @tf.function
-  def step(self):
+  def infidelities(self):
     """
-    Calculates the loss (infidelity) of the control with the parameters
+    Calculates the loss (infidelity) of the control with the current parameters
     """
+    return self.proploss(self.trotterization(self.parameterization_function()))
+
+  @tf.function
+  def infidelities_external(self,optimization_params):
+    """
+    Calculates the loss (infidelity) of the control after updating the parameters
+    Used mostly for external optimizers (Scipy)
+    """
+	
+    self.optimization_params.assign(optimization_params)
     return self.proploss(self.trotterization(self.parameterization_function()))
 
   @tf.function 
