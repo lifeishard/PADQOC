@@ -57,4 +57,21 @@ def slepian_basis_gen(n_time_slots,discretization_time,bandwidth,min_digitizatio
         print("Error: No valid basis! Bandwidth too low or time too short ")   
     return  slepian_basis
 
-#def gaussian_train_basis_gen(n_time_slots,discretization_time,gaussian_width,)
+def gaussian_train_basis_gen(n_time_slots,discretization_time,standard_deviation,delay):
+    boundary = 3*standard_deviation
+    n_basis = 0
+    
+    if(n_time_slots*discretization_time<2*boundary):
+        print("Error: No valid basis! standard deviation too high") 
+    else:
+        n_basis  = int(1 + ((n_time_slots*discretization_time)-(2*boundary))/delay)
+    
+    gaussian_train_basis = np.zeros((n_basis,n_time_slots))
+    factor = 1/(standard_deviation*np.sqrt(2*np.pi))
+    for i in range(n_basis):
+        center = boundary + i*delay
+        for n in range(n_time_slots):
+            gaussian_train_basis[i][n] = factor*(np.exp(-0.5*((n*discretization_time - center)/standard_deviation)**2))
+            
+            
+    return gaussian_train_basis
