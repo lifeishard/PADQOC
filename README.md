@@ -57,4 +57,4 @@ Email michael.y.chen@uwaterloo.ca if you have questions or concerns.
 [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/)
 
 ## Acknowledgement
-If you find this tool useful feel free to cite Chen, M.Y. (2019). *Discrete Time Quantum Walks on Liquid State NMR Quantum Computers*  (Unpublished Master's Thesis). University of Waterloo, Waterloo, Canada.
+If you find this tool useful feel free to cite Chen, M.Y. (2019). *Discrete Time Quantum Walk Simulations of Symmetry Protected Topological Phases on Liquid State NMR Quantum Computers*  (Unpublished Master's Thesis). University of Waterloo, Waterloo, Canada.
